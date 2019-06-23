@@ -323,7 +323,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/23/first/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/24/https-原理浅析/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackie Chen">
@@ -343,7 +343,7 @@
           <h1 class="post-title" itemprop="name headline">
                 
                 
-                <a href="/2019/06/23/first/" class="post-title-link" itemprop="url">first</a>
+                <a href="/2019/06/24/https-原理浅析/" class="post-title-link" itemprop="url">https 原理浅析</a>
               
             
           </h1>
@@ -368,12 +368,34 @@
                 
               
 
-              <time title="Created: 2019-06-23 17:46:45" itemprop="dateCreated datePublished" datetime="2019-06-23T17:46:45+08:00">2019-06-23</time>
+              <time title="Created: 2019-06-24 00:27:08 / Modified: 00:59:36" itemprop="dateCreated datePublished" datetime="2019-06-24T00:27:08+08:00">2019-06-24</time>
             
 
+            
+              
+
+              
             
           </span>
 
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/网络协议/" itemprop="url" rel="index"><span itemprop="name">网络协议</span></a></span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -405,157 +427,42 @@
       
         
           
-            
-          
-        
-      
-    </div>
+            <h1 id="Https原理浅析"><a href="#Https原理浅析" class="headerlink" title="Https原理浅析"></a>Https原理浅析</h1><p>使用RSA算法的SSL握手图如下：</p>
+<img src="/2019/06/24/https-原理浅析/shixu.png" title="shixu">
 
-    
+<h5 id="步骤如下"><a href="#步骤如下" class="headerlink" title="步骤如下"></a>步骤如下</h5><ol>
+<li>Client端请求https连接，发送client_random和支持的加密方式</li>
+<li>返回证书和server_random（经过Server端私钥加密）</li>
+<li>验证证书，使用证书中公钥加密permaster_secret（permaster_secret是一个随机数）</li>
+<li>Client端发送permaster_sercret至Server端，server端通过私钥解密</li>
+<li>Client端和Server端分别根据client_random、server_random和permaster_secret生成master secret</li>
+</ol>
+<hr>
+<h5 id="要点1：-第二步中Server端为何传证书，不直接传公钥"><a href="#要点1：-第二步中Server端为何传证书，不直接传公钥" class="headerlink" title="要点1： 第二步中Server端为何传证书，不直接传公钥"></a>要点1： 第二步中Server端为何传证书，不直接传公钥</h5><p>防止攻击者拦截Client端请求，伪装成服务端。即防止出现如下情况：</p>
+<img src="/2019/06/24/https-原理浅析/heikeshixu.jpg" title="heikeshixu">
 
-    
-    
-    
+<p>因为私钥和公钥谁都能生成，因而Client端无法确认公钥是否属于Server端。数字证书则可以解决这个问题。</p>
+<hr>
+<h5 id="要点2：数字证书"><a href="#要点2：数字证书" class="headerlink" title="要点2：数字证书"></a>要点2：数字证书</h5><p>证书包含的主要内容：</p>
+<ul>
+<li>证书信息：发布机构、过期时间和序列号</li>
+<li>所有者信息</li>
+<li>所有者公钥</li>
+</ul>
+<p>数字证书由CA（certificate authority）颁发，其作用是保证数字证书里的公钥确实是这个证书的所有者。但数字证书同样是可以伪造的，如何保证这一点呢？这时就需要引入数字签名。</p>
+<hr>
+<h5 id="要点3：数字签名"><a href="#要点3：数字签名" class="headerlink" title="要点3：数字签名"></a>要点3：数字签名</h5><p><a href="http://www.youdzone.com/signature.html" target="_blank" rel="noopener">数字签名介绍</a></p>
+<p>客户端验证CA签名过程如下：</p>
+<img src="/2019/06/24/https-原理浅析/yanqianliucheng.jpg" title="yanqianliucheng">
 
-    
+<p>这个过程的第二步，CA的公钥从何而来呢？答案是从操作系统中来。CA的数量并不多，因而可以内置在操作系统中。事实上操作系统中存储的是CA的根证书，根证书中会有CA的公钥，以https协议通信时，Server端会发送证书链给Client端。即CA也分层级，下一级CA的真实性由上一级CA来保证（使用上一级CA的私钥签名）。而根CA的真实性由谁保证？答案显然是操作系统。Windows发行版会内置世界上几个大的根证书机构的证书，即使用正版windows，理论上就已经获得了可信的根证书。</p>
+<p>此时Client端、Server端、CA之间的关系如下：</p>
+<img src="/2019/06/24/https-原理浅析/sanzheguanxi.jpg" title="sanzheguanxi">
 
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/23/hello-world/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackie Chen">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="抿茶言码">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/23/hello-world/" class="post-title-link" itemprop="url">Hello World</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2019-06-23 17:35:40" itemprop="dateCreated datePublished" datetime="2019-06-23T17:35:40+08:00">2019-06-23</time>
-            
-
-            
-          </span>
-
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
+<p>Client信任CA，CA信任Server（不然就不颁发证书了），使得Client信任Server，此时信任链形成。</p>
+<hr>
+<p>最后还有一个问题，如果黑客只是想捣乱，把每次Client端发来的数据修改一遍再转发给Server端，或是把Server端发来的数据修改一遍再回给Client端，该如何处理？</p>
+<p>解决的方法跟数字签名很像，即对发送的信息内容做hash得到hash值，然后将信息内容和hash值一起加密发送。对端在解密后，对收到的信息内容以同样的hash算法做hash计算，如果得到的hash值相同，则数据未被修改。</p>
 
           
         
@@ -639,14 +546,50 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-count">1</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
               
 
               
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                    <span class="site-state-item-count">1</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
 
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">2</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
               
             </nav>
           
