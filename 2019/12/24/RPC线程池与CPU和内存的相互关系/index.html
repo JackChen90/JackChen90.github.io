@@ -102,7 +102,7 @@
 <meta property="og:site_name" content="抿茶言码">
 <meta property="og:description" content="一、RPC服务端线程池的必要性出于性能考虑, RPC框架服务端是一定要设计线程池的. 否则, 来一个请求, 再去创建/启动线程, 就相当低效了. 二、线程池队列中有等待任务的影响我们的RPC框架中使用的是java线程池, 初始化时, 其核心线程数和最大线程数设置为相同, 都是取threadPoolsize的值.一旦同一时间的请求数高于设置的线程数(即threadPoolsize), 则请求会进等待">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2020-10-11T17:18:21.018Z">
+<meta property="og:updated_time" content="2019-12-23T16:27:08.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RPC线程池与CPU和内存的相互关系">
 <meta name="twitter:description" content="一、RPC服务端线程池的必要性出于性能考虑, RPC框架服务端是一定要设计线程池的. 否则, 来一个请求, 再去创建/启动线程, 就相当低效了. 二、线程池队列中有等待任务的影响我们的RPC框架中使用的是java线程池, 初始化时, 其核心线程数和最大线程数设置为相同, 都是取threadPoolsize的值.一旦同一时间的请求数高于设置的线程数(即threadPoolsize), 则请求会进等待">
@@ -373,22 +373,6 @@
             
 
             
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2020-10-12 01:18:21" itemprop="dateModified" datetime="2020-10-12T01:18:21+08:00">2020-10-12</time>
-              
-            
           </span>
 
           
@@ -581,7 +565,7 @@
                 
                   <a href="/archives/">
                 
-                    <span class="site-state-item-count">6</span>
+                    <span class="site-state-item-count">7</span>
                     <span class="site-state-item-name">posts</span>
                   </a>
                 </div>
@@ -659,7 +643,15 @@
                     
                       
                     
-                    <span class="site-state-item-count">16</span>
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">20</span>
                     <span class="site-state-item-name">tags</span>
                   </a>
                 </div>
