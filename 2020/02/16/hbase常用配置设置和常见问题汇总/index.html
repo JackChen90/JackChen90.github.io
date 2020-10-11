@@ -94,18 +94,20 @@
 
 
 
-  <meta name="description" content="一、RPC服务端线程池的必要性出于性能考虑, RPC框架服务端是一定要设计线程池的. 否则, 来一个请求, 再去创建/启动线程, 就相当低效了. 二、线程池队列中有等待任务的影响我们的RPC框架中使用的是java线程池, 初始化时, 其核心线程数和最大线程数设置为相同, 都是取threadPoolsize的值.一旦同一时间的请求数高于设置的线程数(即threadPoolsize), 则请求会进等待">
-<meta name="keywords" content="RPC,线程池">
+  <meta name="description" content="一、常用配置1.1 配置说明   配置项 值 说明    hbase.cluster.name xx-xxxxx-xx-xxxx.xx 集群名称, 区分环境   hbase.client.ipc.pool.type RoundRobin socket连接池的类型: Reusable/RoundRobin/ThreadLocal 默认RoundRobin   hbase.client.keyvalu">
+<meta name="keywords" content="hbase,实践,常见配置,常见问题">
 <meta property="og:type" content="article">
-<meta property="og:title" content="RPC线程池与CPU和内存的相互关系">
-<meta property="og:url" content="http://yoursite.com/2019/12/24/RPC线程池与CPU和内存的相互关系/index.html">
+<meta property="og:title" content="hbase常用配置设置和常见问题汇总">
+<meta property="og:url" content="http://yoursite.com/2020/02/16/hbase常用配置设置和常见问题汇总/index.html">
 <meta property="og:site_name" content="抿茶言码">
-<meta property="og:description" content="一、RPC服务端线程池的必要性出于性能考虑, RPC框架服务端是一定要设计线程池的. 否则, 来一个请求, 再去创建/启动线程, 就相当低效了. 二、线程池队列中有等待任务的影响我们的RPC框架中使用的是java线程池, 初始化时, 其核心线程数和最大线程数设置为相同, 都是取threadPoolsize的值.一旦同一时间的请求数高于设置的线程数(即threadPoolsize), 则请求会进等待">
+<meta property="og:description" content="一、常用配置1.1 配置说明   配置项 值 说明    hbase.cluster.name xx-xxxxx-xx-xxxx.xx 集群名称, 区分环境   hbase.client.ipc.pool.type RoundRobin socket连接池的类型: Reusable/RoundRobin/ThreadLocal 默认RoundRobin   hbase.client.keyvalu">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2020-10-11T17:18:21.018Z">
+<meta property="og:image" content="http://yoursite.com/2020/02/16/hbase常用配置设置和常见问题汇总/hbase-retry-backoff.png">
+<meta property="og:updated_time" content="2020-10-11T18:11:18.686Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="RPC线程池与CPU和内存的相互关系">
-<meta name="twitter:description" content="一、RPC服务端线程池的必要性出于性能考虑, RPC框架服务端是一定要设计线程池的. 否则, 来一个请求, 再去创建/启动线程, 就相当低效了. 二、线程池队列中有等待任务的影响我们的RPC框架中使用的是java线程池, 初始化时, 其核心线程数和最大线程数设置为相同, 都是取threadPoolsize的值.一旦同一时间的请求数高于设置的线程数(即threadPoolsize), 则请求会进等待">
+<meta name="twitter:title" content="hbase常用配置设置和常见问题汇总">
+<meta name="twitter:description" content="一、常用配置1.1 配置说明   配置项 值 说明    hbase.cluster.name xx-xxxxx-xx-xxxx.xx 集群名称, 区分环境   hbase.client.ipc.pool.type RoundRobin socket连接池的类型: Reusable/RoundRobin/ThreadLocal 默认RoundRobin   hbase.client.keyvalu">
+<meta name="twitter:image" content="http://yoursite.com/2020/02/16/hbase常用配置设置和常见问题汇总/hbase-retry-backoff.png">
 
 
 
@@ -113,7 +115,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/2019/12/24/RPC线程池与CPU和内存的相互关系/">
+  <link rel="canonical" href="http://yoursite.com/2020/02/16/hbase常用配置设置和常见问题汇总/">
 
 
 
@@ -123,7 +125,7 @@
   };
 </script>
 
-  <title>RPC线程池与CPU和内存的相互关系 | 抿茶言码</title>
+  <title>hbase常用配置设置和常见问题汇总 | 抿茶言码</title>
   
 
 
@@ -326,7 +328,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/12/24/RPC线程池与CPU和内存的相互关系/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/02/16/hbase常用配置设置和常见问题汇总/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Jackie Chen">
@@ -343,7 +345,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">RPC线程池与CPU和内存的相互关系
+          <h1 class="post-title" itemprop="name headline">hbase常用配置设置和常见问题汇总
 
               
             
@@ -369,7 +371,7 @@
                 
               
 
-              <time title="Created: 2019-12-24 00:27:08" itemprop="dateCreated datePublished" datetime="2019-12-24T00:27:08+08:00">2019-12-24</time>
+              <time title="Created: 2020-02-16 01:05:57" itemprop="dateCreated datePublished" datetime="2020-02-16T01:05:57+08:00">2020-02-16</time>
             
 
             
@@ -386,7 +388,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2020-10-12 01:18:21" itemprop="dateModified" datetime="2020-10-12T01:18:21+08:00">2020-10-12</time>
+                <time title="Modified: 2020-10-12 02:11:18" itemprop="dateModified" datetime="2020-10-12T02:11:18+08:00">2020-10-12</time>
               
             
           </span>
@@ -403,7 +405,7 @@
                 <span class="post-meta-item-text">In</span>
               
               
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/微服务/" itemprop="url" rel="index"><span itemprop="name">微服务</span></a></span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/hbase/" itemprop="url" rel="index"><span itemprop="name">hbase</span></a></span>
 
                 
                 
@@ -438,27 +440,114 @@
       
 
       
-        <h2 id="一、RPC服务端线程池的必要性"><a href="#一、RPC服务端线程池的必要性" class="headerlink" title="一、RPC服务端线程池的必要性"></a>一、RPC服务端线程池的必要性</h2><p>出于性能考虑, RPC框架服务端是一定要设计线程池的. 否则, 来一个请求, 再去创建/启动线程, 就相当低效了.</p>
-<h2 id="二、线程池队列中有等待任务的影响"><a href="#二、线程池队列中有等待任务的影响" class="headerlink" title="二、线程池队列中有等待任务的影响"></a>二、线程池队列中有等待任务的影响</h2><p>我们的RPC框架中使用的是java线程池, 初始化时, 其核心线程数和最大线程数设置为<font color="OrangeRed">相同</font>, 都是取threadPoolsize的值.一旦同一时间的请求数高于设置的线程数(即threadPoolsize), 则请求会进等待队列. 此时服务端开始满负荷运行(线程池中所有线程均处理执行状态, 在执行完已有任务前, 不会再产生新的线程来执行请求).</p>
-<p>那线程池等待队列有任务对服务有什么影响呢?</p>
-<p>最直接的影响, 是导致<font color="OrangeRed">请求延迟</font>. 假设服务平均响应时间100ms, 服务线程池大小100. 假设当前并发为200, 则会有100个并发请求会进队列, 需要等待线程池中先处理完100个请求, 才能轮到队列中的请求执行. 此时响应时间直接变为200ms, <font color="OrangeRed">服务响应时间变长</font>.</p>
+        <h1 id="一、常用配置"><a href="#一、常用配置" class="headerlink" title="一、常用配置"></a>一、常用配置</h1><h2 id="1-1-配置说明"><a href="#1-1-配置说明" class="headerlink" title="1.1 配置说明"></a>1.1 配置说明</h2><table>
+<thead>
+<tr>
+<th>配置项</th>
+<th>值</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>hbase.cluster.name</td>
+<td>xx-xxxxx-xx-xxxx.xx</td>
+<td>集群名称, 区分环境</td>
+</tr>
+<tr>
+<td>hbase.client.ipc.pool.type</td>
+<td>RoundRobin</td>
+<td>socket连接池的类型: Reusable/RoundRobin/ThreadLocal 默认RoundRobin</td>
+</tr>
+<tr>
+<td>hbase.client.keyvalue.maxsize</td>
+<td>2097152</td>
+<td>存储文件中的单个entry的大小上限. 默认10485760(10M)</td>
+</tr>
+<tr>
+<td>hbase.client.pause</td>
+<td>40</td>
+<td>客户端暂停时间, 常用于客户端在重试前的等待时间. 默认100ms</td>
+</tr>
+<tr>
+<td>hbase.ipc.client.tcpnodelay</td>
+<td>true</td>
+<td>设置tcp socket连接no delay. 默认true</td>
+</tr>
+<tr>
+<td>hbase.client.ipc.pool.size</td>
+<td>2</td>
+<td>socket连接池大小</td>
+</tr>
+<tr>
+<td>hbase.rpc.timeout</td>
+<td>300</td>
+<td>一次RPC的超时时间. 默认60000ms</td>
+</tr>
+<tr>
+<td>hbase.client.operation.timeout</td>
+<td>1000</td>
+<td>一次操作的超时时间. 默认1200000ms</td>
+</tr>
+<tr>
+<td>hbase.client.retries.number</td>
+<td>10</td>
+<td>最大重试次数. 默认35</td>
+</tr>
+<tr>
+<td>hbase.client.prefetch.limit</td>
+<td>100</td>
+<td>预取region地址个数. 实际对于随机存取意义不大</td>
+</tr>
+<tr>
+<td>hbase.client.scanner.caching</td>
+<td>30</td>
+<td>Scan时一次next请求获取的行数. 默认100</td>
+</tr>
+<tr>
+<td>hbase.ipc.client.connection.maxidletime</td>
+<td>2147483647</td>
+<td>客户端连接最大空闲时间</td>
+</tr>
+<tr>
+<td>zookeeper.session.timeout</td>
+<td>10000</td>
+<td>zk会话超时时间. 默认180000ms</td>
+</tr>
+<tr>
+<td>zookeeper.recovery.retry</td>
+<td>2</td>
+<td>zk重试次数</td>
+</tr>
+</tbody></table>
+<p>附:<a href="https://svn.apache.org/repos/asf/hbase/hbase.apache.org/trunk/hbase-default.xml" target="_blank" rel="noopener">官方默认配置</a></p>
 <a id="more"></a>
 
-<h2 id="三、线程池大小设置对CPU-内存的影响"><a href="#三、线程池大小设置对CPU-内存的影响" class="headerlink" title="三、线程池大小设置对CPU/内存的影响"></a>三、线程池大小设置对CPU/内存的影响</h2><p>既然线程池队列有任务, 会导致服务响应时间变长, 那是否可以把线程池大小设置的足够大, 保证请求不会进等待队列, 进而产生延时?</p>
-<p>答案是: <font color="OrangeRed">不可以</font>.</p>
-<p>jvm在创建线程时,要为线程分配栈内存, 当前默认是1024KB(64位linux机器, 且不设置-Xss), 也就是说在服务端满负荷运行的情况下, 服务端threadPoolsize从100提升到500, 将增加400MB内存的消耗. 一旦我们的代码执行过程中还涉及到新建线程, 那内存的消耗将进一步增加. 此外, 我们的服务还涉及到运算, 也要消耗CPU资源. 更不必说超过CPU核数的并发, 只是CPU分配时间片实现的并发, 本质上已经不是并发了. 由此可知: 线程池大小的调整, 要综合考虑机器实例的负载. <font color="OrangeRed">需要在线程池大小与内存/CPU之间寻找相对平衡的点, 实现在充分保证服务质量的情况下, 最大限度利用好资源</font>.</p>
-<h2 id="四、我们服务的特点"><a href="#四、我们服务的特点" class="headerlink" title="四、我们服务的特点"></a>四、我们服务的特点</h2><p>相对而言, 我们的服务是计算量比较少的, 很少涉及到一定规模数据量的排序/查询/运算操作. 这一点从部署平台上当前各个服务的cpu/内存负载也能看出来.</p>
-<p>因而在调整线程池大小时, 我们首先考虑的是对<font color="OrangeRed">内存</font>的影响</p>
-<p>我们的运营同学会有一些push运营, 因而服务会存在一些流量突增的情况, 尤其是在发全量push的时候. 因而我们的服务正常情况下, 队列中不应该经常出现大量等待任务. 如果经常出现, 需要考虑扩容.</p>
-<h2 id="五、具体的调整操作"><a href="#五、具体的调整操作" class="headerlink" title="五、具体的调整操作"></a>五、具体的调整操作</h2><p>当前我们的RPC线程池队列打点已经有一段时间, 可以看到服务在生产运行下线程池队列情况. 结合我们观察到的现象, 我们可以对服务中的线程池队列做一些调整. 初步方案如下:</p>
-<h4 id="情况1-服务内存使用率较低但线程池队列经常有任务"><a href="#情况1-服务内存使用率较低但线程池队列经常有任务" class="headerlink" title="情况1: 服务内存使用率较低但线程池队列经常有任务"></a>情况1: 服务内存使用率较低但线程池队列经常有任务</h4><p>这种情况首先考虑调大threadPoolsize, 调整量可以根据当前内存使用率大小而定. 如果当前内存使用率仅20%, 可以考虑适当多加; 如果当前内存使用率到了40%, 则需要少加. <font color="OrangeRed">单次最高加100, threadPoolsize最大不要超过600</font>.</p>
-<h4 id="情况2-服务内存使用率较低且线程池队列没有任务"><a href="#情况2-服务内存使用率较低且线程池队列没有任务" class="headerlink" title="情况2: 服务内存使用率较低且线程池队列没有任务"></a>情况2: 服务内存使用率较低且线程池队列没有任务</h4><p>这种情况说明当前服务负载较低, 优先考虑缩容. <font color="OrangeRed">实例最少2, 不要少于2</font>.</p>
-<h4 id="情况3-服务内存使用率较高且线程池队列经常有任务"><a href="#情况3-服务内存使用率较高且线程池队列经常有任务" class="headerlink" title="情况3: 服务内存使用率较高且线程池队列经常有任务"></a>情况3: 服务内存使用率较高且线程池队列经常有任务</h4><p>这种情况分两种:</p>
+<h2 id="1-2-关于配置的注意点"><a href="#1-2-关于配置的注意点" class="headerlink" title="1.2 关于配置的注意点"></a>1.2 关于配置的注意点</h2><h3 id="1-2-1-超时设置"><a href="#1-2-1-超时设置" class="headerlink" title="1.2.1 超时设置"></a>1.2.1 超时设置</h3><p>我们跟客户端约定的超时是1s, 所以hbase.client.operation.timeout不得设置超过1s(不跟客户端交互的可以适当放宽)</p>
+<p>当前遇到比较多的问题, 都是rpc超时问题. rpc超时后会有重试, 多次重试之间会有时间间隔, 一旦达到最大重试次数或者最大超时时间, 请求失败, 停止重试. 时间间隔由hbase.client.pause指定, 单次rpc超时由hbase.rpc.timeout指定, 最大超时时间由hbase.client.operation.timeout指定</p>
+<p>每次的时间间隔会不相同, 简单地说: 重试次数越多, 时间间隔越长. 具体策略代码说明如下:</p>
+<img src="/2020/02/16/hbase常用配置设置和常见问题汇总/hbase-retry-backoff.png" title="hbase-retry-backoff">
+
+<h3 id="1-2-2-连接池设置"><a href="#1-2-2-连接池设置" class="headerlink" title="1.2.2 连接池设置"></a>1.2.2 连接池设置</h3><p>关于socket连接池大小(hbase.client.ipc.pool.size)设置, 一般建议: &lt;10万qps, 用2</p>
+<h1 id="二、常见问题汇总"><a href="#二、常见问题汇总" class="headerlink" title="二、常见问题汇总"></a>二、常见问题汇总</h1><h2 id="2-1-超时问题"><a href="#2-1-超时问题" class="headerlink" title="2.1 超时问题"></a>2.1 超时问题</h2><h3 id="2-1-1-客户端问题or服务端问题"><a href="#2-1-1-客户端问题or服务端问题" class="headerlink" title="2.1.1 客户端问题or服务端问题"></a>2.1.1 客户端问题or服务端问题</h3><p>关注报错日志中的四个超时: callDuration/callTimeout waitTime/rpcTimeout</p>
+<p>其中, callDuration和callTimeout是客户端调用时的超时, 当callDuration&gt;callTimeout, 表示客户端有问题. 这个时候有可能是客户端容器有问题(比如GC), 可能是网络问题, 也可能是hbase-client客户端有问题</p>
+<p>waitTime/rpcTimeout出现在每次的rpc调用里, 当waitTime&gt;rpcTimeout, 表示服务端处理超时</p>
+<h3 id="2-1-2-服务端问题的几种类型"><a href="#2-1-2-服务端问题的几种类型" class="headerlink" title="2.1.2 服务端问题的几种类型"></a>2.1.2 服务端问题的几种类型</h3><h4 id="2-1-2-1-location超时"><a href="#2-1-2-1-location超时" class="headerlink" title="2.1.2.1 location超时"></a>2.1.2.1 location超时</h4><p>报错: java.io.IOException: Timeout when waiting for location</p>
+<p>服务发布的一开始有可能会报这类错误.<br>如果是项目运行过程中报此类错误, 则是server端问题, 需联系hbase同学定位解决</p>
+<h4 id="2-1-2-2-其他-server-问题汇总"><a href="#2-1-2-2-其他-server-问题汇总" class="headerlink" title="2.1.2.2 其他 server 问题汇总"></a>2.1.2.2 其他 server 问题汇总</h4><p>包括以下报错:</p>
 <ul>
-<li>对于在突增流量下会受影响的服务,  如果队列里任务量较大(这个阈值可以定成100), 要考虑扩容</li>
-<li>对于在突增流量下不怎么受影响的服务,  容忍度要放宽(这就是利用率比较理想的情况)  </li>
+<li>org.apache.hadoop.hbase.ipc.FailedServerException: This server is in the failed. servers list</li>
+<li>java.io.IOException: IPC server unable to write call <a href="mailto:method@xx-xxxxx-xx-xxxx.xx" target="_blank" rel="noopener">method@xx-xxxxx-xx-xxxx.xx</a>/xxx.xxx.xxx.xxx:xxxxx</li>
+<li>java.io.IOException: Can not send request because relogin is in progress<h2 id="2-2-quotas问题"><a href="#2-2-quotas问题" class="headerlink" title="2.2 quotas问题"></a>2.2 quotas问题</h2>报错日志中出现以下两种报错, 则为读/写quotas设置过小/未设置. 需要 给htable配置quotas</li>
 </ul>
-<h4 id="情况4-出现服务端调用超时报错的情况"><a href="#情况4-出现服务端调用超时报错的情况" class="headerlink" title="情况4: 出现服务端调用超时报错的情况"></a>情况4: 出现服务端调用超时报错的情况</h4><p>这种情况下, 确认服务不是因为调用中间件超时报错(包括hbase/redis/mysql/其他服务), 直接扩容</p>
+<p>org.apache.hadoop.hbase.quotas.ThrottlingException: number of read requests exceeded.</p>
+<p>org.apache.hadoop.hbase.quotas.ThrottlingException: number of write requests exceeded.</p>
+<p><font color="OrangeRed">注意</font>:</p>
+<ul>
+<li>quotas的读/写配置, 要参考read capacity/write capacity, 比例可以直接1:1</li>
+<li>quotas的配置, 是最小保证配置. 举例: quotas读配置了100, 如果当前服务不忙, read capacity&gt;100, server照样可以保证执行; 一旦服务忙起来, server只能保证100的read capacity</li>
+<li>quotas是均分在每个region上的, 也就是说, 一旦出现热点region访问/写入, 单个region的 read capacity&gt;(quotas/region数), 就有可能会报错. 所以对于热点读, 要加缓存; 在设计表时, 要保证key的散列度, 防止出现热点写</li>
+<li>不配置quotas, 则表的优先级最低, 一旦server忙起来, 就会出现读写报错</li>
+</ul>
 
       
     </div>
@@ -485,9 +574,13 @@
         
         <div class="post-tags">
           
-            <a href="/tags/RPC/" rel="tag"># RPC</a>
+            <a href="/tags/hbase/" rel="tag"># hbase</a>
           
-            <a href="/tags/线程池/" rel="tag"># 线程池</a>
+            <a href="/tags/实践/" rel="tag"># 实践</a>
+          
+            <a href="/tags/常见配置/" rel="tag"># 常见配置</a>
+          
+            <a href="/tags/常见问题/" rel="tag"># 常见问题</a>
           
         </div>
       
@@ -500,8 +593,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2019/06/24/https-原理浅析/" rel="next" title="https 原理浅析">
-                <i class="fa fa-chevron-left"></i> https 原理浅析
+              <a href="/2019/12/24/RPC线程池与CPU和内存的相互关系/" rel="next" title="RPC线程池与CPU和内存的相互关系">
+                <i class="fa fa-chevron-left"></i> RPC线程池与CPU和内存的相互关系
               </a>
             
           </div>
@@ -510,8 +603,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2020/02/16/hbase常用配置设置和常见问题汇总/" rel="prev" title="hbase常用配置设置和常见问题汇总">
-                hbase常用配置设置和常见问题汇总 <i class="fa fa-chevron-right"></i>
+              <a href="/2020/04/12/读后感-敏捷开发修炼之道/" rel="prev" title="敏捷开发修炼之道">
+                敏捷开发修炼之道 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -737,7 +830,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、RPC服务端线程池的必要性"><span class="nav-number">1.</span> <span class="nav-text">一、RPC服务端线程池的必要性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、线程池队列中有等待任务的影响"><span class="nav-number">2.</span> <span class="nav-text">二、线程池队列中有等待任务的影响</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、线程池大小设置对CPU-内存的影响"><span class="nav-number">3.</span> <span class="nav-text">三、线程池大小设置对CPU/内存的影响</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、我们服务的特点"><span class="nav-number">4.</span> <span class="nav-text">四、我们服务的特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、具体的调整操作"><span class="nav-number">5.</span> <span class="nav-text">五、具体的调整操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#情况1-服务内存使用率较低但线程池队列经常有任务"><span class="nav-number">5.0.1.</span> <span class="nav-text">情况1: 服务内存使用率较低但线程池队列经常有任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#情况2-服务内存使用率较低且线程池队列没有任务"><span class="nav-number">5.0.2.</span> <span class="nav-text">情况2: 服务内存使用率较低且线程池队列没有任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#情况3-服务内存使用率较高且线程池队列经常有任务"><span class="nav-number">5.0.3.</span> <span class="nav-text">情况3: 服务内存使用率较高且线程池队列经常有任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#情况4-出现服务端调用超时报错的情况"><span class="nav-number">5.0.4.</span> <span class="nav-text">情况4: 出现服务端调用超时报错的情况</span></a></li></ol></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#一、常用配置"><span class="nav-number">1.</span> <span class="nav-text">一、常用配置</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-配置说明"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 配置说明</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-关于配置的注意点"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 关于配置的注意点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-超时设置"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.2.1 超时设置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-2-连接池设置"><span class="nav-number">1.2.2.</span> <span class="nav-text">1.2.2 连接池设置</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#二、常见问题汇总"><span class="nav-number">2.</span> <span class="nav-text">二、常见问题汇总</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-超时问题"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 超时问题</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-1-客户端问题or服务端问题"><span class="nav-number">2.1.1.</span> <span class="nav-text">2.1.1 客户端问题or服务端问题</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-2-服务端问题的几种类型"><span class="nav-number">2.1.2.</span> <span class="nav-text">2.1.2 服务端问题的几种类型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-2-1-location超时"><span class="nav-number">2.1.2.1.</span> <span class="nav-text">2.1.2.1 location超时</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-1-2-2-其他-server-问题汇总"><span class="nav-number">2.1.2.2.</span> <span class="nav-text">2.1.2.2 其他 server 问题汇总</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-quotas问题"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 quotas问题</span></a></li></ol></li></ol></div>
             
 
           </div>
