@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang>
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/font-awesome.min.css?v=4.7.0">
+
+<link rel="stylesheet" href="/css/main.css?v=7.1.2">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=7.1.2">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=7.1.2">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=7.1.2" color="#222">
+
+
+
+
+
+
+
+<script id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '7.1.2',
+    sidebar: {"position":"left","display":"post","offset":12,"onmobile":false,"dimmer":false},
+    back2top: true,
+    back2top_sidebar: false,
+    fancybox: false,
+    fastclick: false,
+    lazyload: false,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+  
+
+
+
+
+  <meta name="description" content="背景 项目组出过几次NPE事故,为保障代码健壮性, 提高项目稳定性, 在项目中引入findbugs插件, 进行静态代码检查.  任务目标 Jenkins CI过程中, 引入静态代码检查, 生成检查报告 引入bug模板, 实现检查内容可配置 代码检查发现bug时, 阻断maven构建流程, 发送邮件告警  实施过程引入maven插件findbugs-maven-plugin注意点:  与pipeli">
+<meta name="keywords" content="jenkins,持续集成,CI,findbugs,pipeline">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Jenkins集成findbugs完成静态代码检查">
+<meta property="og:url" content="http://yoursite.com/2020/07/02/Jenkins集成findbugs完成静态代码检查/index.html">
+<meta property="og:site_name" content="抿茶言码">
+<meta property="og:description" content="背景 项目组出过几次NPE事故,为保障代码健壮性, 提高项目稳定性, 在项目中引入findbugs插件, 进行静态代码检查.  任务目标 Jenkins CI过程中, 引入静态代码检查, 生成检查报告 引入bug模板, 实现检查内容可配置 代码检查发现bug时, 阻断maven构建流程, 发送邮件告警  实施过程引入maven插件findbugs-maven-plugin注意点:  与pipeli">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://yoursite.com/2020/07/02/Jenkins集成findbugs完成静态代码检查/1dashbroad.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/02/Jenkins集成findbugs完成静态代码检查/2deatil.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/02/Jenkins集成findbugs完成静态代码检查/3findbugs.png">
+<meta property="og:image" content="http://yoursite.com/2020/07/02/Jenkins集成findbugs完成静态代码检查/4location.png">
+<meta property="og:updated_time" content="2020-07-02T02:31:48.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Jenkins集成findbugs完成静态代码检查">
+<meta name="twitter:description" content="背景 项目组出过几次NPE事故,为保障代码健壮性, 提高项目稳定性, 在项目中引入findbugs插件, 进行静态代码检查.  任务目标 Jenkins CI过程中, 引入静态代码检查, 生成检查报告 引入bug模板, 实现检查内容可配置 代码检查发现bug时, 阻断maven构建流程, 发送邮件告警  实施过程引入maven插件findbugs-maven-plugin注意点:  与pipeli">
+<meta name="twitter:image" content="http://yoursite.com/2020/07/02/Jenkins集成findbugs完成静态代码检查/1dashbroad.png">
+
+
+
+
+
+  
+  
+  <link rel="canonical" href="http://yoursite.com/2020/07/02/Jenkins集成findbugs完成静态代码检查/">
+
+
+
+<script id="page.configurations">
+  CONFIG.page = {
+    sidebar: "",
+  };
+</script>
+
+  <title>Jenkins集成findbugs完成静态代码检查 | 抿茶言码</title>
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .motion-element,
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-title { opacity: initial; }
+
+  .use-motion .logo,
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="default">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">抿茶言码</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+    
+      
+        <p class="site-subtitle">搬砖二三事</p>
+      
+    
+    
+  </div>
+
+  <div class="site-nav-toggle">
+    <button aria-label="Toggle navigation bar">
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  
+    <ul id="menu" class="menu">
+      
+        
+        
+        
+          
+          <li class="menu-item menu-item-home">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/" rel="section"><i class="menu-item-icon fa fa-fw fa-home"></i> <br>Home</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-tags">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/tags/" rel="section"><i class="menu-item-icon fa fa-fw fa-tags"></i> <br>Tags</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-categories">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/categories/" rel="section"><i class="menu-item-icon fa fa-fw fa-th"></i> <br>Categories</a>
+
+  </li>
+        
+        
+        
+          
+          <li class="menu-item menu-item-archives">
+
+    
+    
+    
+      
+    
+
+    
+
+    <a href="/archives/" rel="section"><i class="menu-item-icon fa fa-fw fa-archive"></i> <br>Archives</a>
+
+  </li>
+
+      
+      
+    </ul>
+  
+
+  
+
+  
+</nav>
+
+
+
+  
+
+
+
+</div>
+    </header>
+
+    
+
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+            
+
+          
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/07/02/Jenkins集成findbugs完成静态代码检查/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Jackie Chen">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="抿茶言码">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">Jenkins集成findbugs完成静态代码检查
+
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+
+            
+            
+            
+
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+
+              
+                
+              
+
+              <time title="Created: 2020-07-02 10:31:48" itemprop="dateCreated datePublished" datetime="2020-07-02T10:31:48+08:00">2020-07-02</time>
+            
+
+            
+          </span>
+
+          
+            <span class="post-category">
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">In</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/持续集成/" itemprop="url" rel="index"><span itemprop="name">持续集成</span></a></span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h3><blockquote>
+<p>项目组出过几次NPE事故,为保障代码健壮性, 提高项目稳定性, 在项目中引入findbugs插件, 进行静态代码检查.</p>
+</blockquote>
+<h3 id="任务目标"><a href="#任务目标" class="headerlink" title="任务目标"></a>任务目标</h3><ul>
+<li>Jenkins CI过程中, 引入静态代码检查, 生成检查报告</li>
+<li>引入bug模板, 实现检查内容可配置</li>
+<li>代码检查发现bug时, 阻断maven构建流程, 发送邮件告警</li>
+</ul>
+<h3 id="实施过程"><a href="#实施过程" class="headerlink" title="实施过程"></a>实施过程</h3><h4 id="引入maven插件findbugs-maven-plugin"><a href="#引入maven插件findbugs-maven-plugin" class="headerlink" title="引入maven插件findbugs-maven-plugin"></a>引入maven插件findbugs-maven-plugin</h4><p>注意点:</p>
+<ul>
+<li>与pipeline配合, 在install阶段再报错, 让pipeline在compile阶段生成报告</li>
+<li>配置includeFilterFile, 自定义bug检查类型</li>
+<li>一些反向工程的代码可以配置<excludefilterfile>节点, 不做bug检查<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.codehaus.mojo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>findbugs-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">version</span>&gt;</span>3.0.5<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">failOnError</span>&gt;</span>true<span class="tag">&lt;/<span class="name">failOnError</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">findbugsXmlOutput</span>&gt;</span>true<span class="tag">&lt;/<span class="name">findbugsXmlOutput</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">xmlOutput</span>&gt;</span>true<span class="tag">&lt;/<span class="name">xmlOutput</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">includeFilterFile</span>&gt;</span>$&#123;basedir&#125;/src/main/resources/findbugs-include.xml<span class="tag">&lt;/<span class="name">includeFilterFile</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">executions</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">execution</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">id</span>&gt;</span>failOnError<span class="tag">&lt;/<span class="name">id</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">phase</span>&gt;</span>install<span class="tag">&lt;/<span class="name">phase</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">goals</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">goal</span>&gt;</span>check<span class="tag">&lt;/<span class="name">goal</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">goals</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">effort</span>&gt;</span>Max<span class="tag">&lt;/<span class="name">effort</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">threshold</span>&gt;</span>High<span class="tag">&lt;/<span class="name">threshold</span>&gt;</span></span><br><span class="line">                <span class="tag">&lt;<span class="name">failOnError</span>&gt;</span>true<span class="tag">&lt;/<span class="name">failOnError</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">execution</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">executions</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</excludefilterfile></li>
+</ul>
+<a id="more"></a>
+
+<p>注意点:</p>
+<p>配置不需要检查的模块</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">plugin</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.codehaus.mojo<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>findbugs-maven-plugin<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">configuration</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">skip</span>&gt;</span>true<span class="tag">&lt;/<span class="name">skip</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">configuration</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">plugin</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h4 id="自定义bug检查类型-findbugs-include-xml"><a href="#自定义bug检查类型-findbugs-include-xml" class="headerlink" title="自定义bug检查类型. findbugs-include.xml"></a>自定义bug检查类型. findbugs-include.xml</h4><p>注意:</p>
+<ul>
+<li>当前阶段, 只配置了NP RCN两个, 大家可以根据需要配置对应目录/类和检查类型. (<a href="http://findbugs.sourceforge.net/bugDescriptions.html" target="_blank" rel="noopener">bug code/pattern 参考</a>)</li>
+<li>相应的, 如果有不想检查的目录/类, 可以配置findbugs-exclude.xml, 道理与findbugs-include.xml相同<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?xml version="1.0" encoding="UTF-8"?&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">FindBugsFilter</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">Match</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Package</span> <span class="attr">name</span>=<span class="string">"~com\.xxxxx\.xxxx\.xxxx\.author.*"</span>/&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">Bug</span> <span class="attr">code</span>=<span class="string">"NP,RCN"</span>/&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="name">Match</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">FindBugsFilter</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="jenkins-pipeline"><a href="#jenkins-pipeline" class="headerlink" title="jenkins pipeline"></a>jenkins pipeline</h4><p>重点内容:</p>
+<ul>
+<li>新增stage Verify, 在compile后执行findbugs, 在此stage中生成报告<figure class="highlight groovy"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line">pipeline &#123;</span><br><span class="line">  agent &#123;</span><br><span class="line">    node &#123;</span><br><span class="line">      label <span class="string">'maven-jdk1.8'</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  stages &#123;</span><br><span class="line">    stage(<span class="string">'Verify'</span>)&#123;</span><br><span class="line">      steps &#123;</span><br><span class="line">        sh <span class="string">'mvn -B -U clean compile findbugs:findbugs'</span></span><br><span class="line">        findbugs(<span class="string">pattern:</span> <span class="string">'**/target/findbugsXml.xml'</span>)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    stage(<span class="string">'Build'</span>) &#123;</span><br><span class="line">      steps &#123;</span><br><span class="line">        sh <span class="string">'mvn -B -U clean install'</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  post &#123;</span><br><span class="line">    failure &#123;</span><br><span class="line">      script &#123;</span><br><span class="line">      <span class="keyword">def</span> changeStr = getChangeString()</span><br><span class="line">      emailext <span class="string">body:</span></span><br><span class="line">        <span class="string">"""Job '$&#123;env.JOB_NAME&#125;:$&#123;env.BUILD_NUMBER&#125;\' 失败!\n</span></span><br><span class="line"><span class="string">commit记录:</span></span><br><span class="line"><span class="string">$&#123;changeStr&#125;</span></span><br><span class="line"><span class="string">点击进入Jenkins查看详情: $&#123;env.BUILD_URL&#125;"""</span>,</span><br><span class="line"><span class="symbol">       compressLog:</span> <span class="literal">true</span>,</span><br><span class="line"><span class="symbol">       attachLog:</span> <span class="literal">true</span>,</span><br><span class="line"><span class="symbol">       subject:</span><span class="string">"构建失败: $&#123;env.JOB_NAME&#125;:$&#123;env.BUILD_NUMBER&#125;"</span>,</span><br><span class="line"><span class="symbol">       to:</span><span class="string">"alarmemail@xxxx.com"</span></span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  triggers &#123;</span><br><span class="line">    cron(<span class="string">'H H/2 * * *'</span>)</span><br><span class="line">    gitlab(<span class="string">triggerOnPush:</span> <span class="literal">true</span>, <span class="string">triggerOnMergeRequest:</span> <span class="literal">true</span>, <span class="string">branchFilterType:</span> <span class="string">'All'</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> getChangeString() &#123;</span><br><span class="line">  <span class="keyword">def</span> changeString = <span class="string">""</span></span><br><span class="line">  <span class="keyword">def</span> changeLogSets = currentBuild.changeSets</span><br><span class="line">  <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; changeLogSets.size(); i++) &#123;</span><br><span class="line">    <span class="keyword">def</span> entries = changeLogSets[i].items</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> j = <span class="number">0</span>; j &lt; entries.length; j++) &#123;</span><br><span class="line">      <span class="keyword">def</span> entry = entries[j]</span><br><span class="line">      changeString += <span class="string">"-- "</span>+<span class="string">"$&#123;entry.commitId&#125; by $&#123;entry.author&#125; on $&#123;new Date(entry.timestamp).format('yyyy-MM-dd HH:mm:ss')&#125;  $&#123;entry.msg&#125;"</span>+<span class="string">"\n"</span></span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">if</span> (!changeString) &#123;</span><br><span class="line">    changeString = <span class="string">"-- 无"</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> changeString</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+</li>
+</ul>
+<h4 id="成果展示"><a href="#成果展示" class="headerlink" title="成果展示"></a>成果展示</h4><img src="/2020/07/02/Jenkins集成findbugs完成静态代码检查/1dashbroad.png" title="1dashbroad">
+<img src="/2020/07/02/Jenkins集成findbugs完成静态代码检查/2deatil.png" title="2deatil.png">
+<img src="/2020/07/02/Jenkins集成findbugs完成静态代码检查/3findbugs.png" title="3findbugs.png">
+<img src="/2020/07/02/Jenkins集成findbugs完成静态代码检查/4location.png" title="4location.png">
+
+<p>参考文档:<br><a href="http://findbugs.sourceforge.net/manual/index.html" target="_blank" rel="noopener">http://findbugs.sourceforge.net/manual/index.html</a><br><a href="https://stackoverflow.com/questions/38632682/maven-execute-a-goal-on-build-fail-findbugs" target="_blank" rel="noopener">https://stackoverflow.com/questions/38632682/maven-execute-a-goal-on-build-fail-findbugs</a></p>
+
+      
+    </div>
+
+    
+
+    
+    
+    
+
+    
+
+    
+      
+    
+    
+
+    
+
+    <footer class="post-footer">
+      
+        
+          
+        
+        <div class="post-tags">
+          
+            <a href="/tags/jenkins/" rel="tag"># jenkins</a>
+          
+            <a href="/tags/持续集成/" rel="tag"># 持续集成</a>
+          
+            <a href="/tags/CI/" rel="tag"># CI</a>
+          
+            <a href="/tags/findbugs/" rel="tag"># findbugs</a>
+          
+            <a href="/tags/pipeline/" rel="tag"># pipeline</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2020/06/03/分布式id自增算法-雪花算法/" rel="next" title="分布式id自增算法-雪花算法(snowflake)">
+                <i class="fa fa-chevron-left"></i> 分布式id自增算法-雪花算法(snowflake)
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/08/28/一次cpu百分百问题定位实战/" rel="prev" title="一次cpu 100%问题定位实战">
+                一次cpu 100%问题定位实战 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+  </div>
+
+
+          </div>
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Jackie Chen</p>
+              <div class="site-description motion-element" itemprop="description"></div>
+          </div>
+
+          
+            <nav class="site-state motion-element">
+              
+                <div class="site-state-item site-state-posts">
+                
+                  <a href="/archives/">
+                
+                    <span class="site-state-item-count">8</span>
+                    <span class="site-state-item-name">posts</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-categories">
+                  
+                    
+                      <a href="/categories/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">7</span>
+                    <span class="site-state-item-name">categories</span>
+                  </a>
+                </div>
+              
+
+              
+                
+                
+                <div class="site-state-item site-state-tags">
+                  
+                    
+                      <a href="/tags/">
+                    
+                  
+                    
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                      
+                    
+                    <span class="site-state-item-count">25</span>
+                    <span class="site-state-item-name">tags</span>
+                  </a>
+                </div>
+              
+            </nav>
+          
+
+          
+
+          
+
+          
+            <div class="links-of-author motion-element">
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="https://github.com/JackChen90" title="GitHub &rarr; https://github.com/JackChen90" rel="noopener" target="_blank"><i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  
+                  
+                    
+                  
+                  
+                    
+                  
+                  <a href="mailto:jackie55546@gmail.com" title="E-Mail &rarr; mailto:jackie55546@gmail.com" rel="noopener" target="_blank"><i class="fa fa-fw fa-envelope"></i>E-Mail</a>
+                </span>
+              
+            </div>
+          
+
+          
+
+          
+          
+            <div class="links-of-blogroll motion-element links-of-blogroll-inline">
+              <div class="links-of-blogroll-title">
+                <i class="fa  fa-fw fa-link"></i>
+                友情链接
+              </div>
+              <ul class="links-of-blogroll-list">
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://www.ruanyifeng.com/blog/" title="http://www.ruanyifeng.com/blog/" rel="noopener" target="_blank">阮一峰</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="http://calvin1978.blogcn.com/" title="http://calvin1978.blogcn.com/" rel="noopener" target="_blank">江南白衣</a>
+                  </li>
+                
+                  <li class="links-of-blogroll-item">
+                    <a href="https://www.cnblogs.com/vamei/" title="https://www.cnblogs.com/vamei/" rel="noopener" target="_blank">养猪大佬-vamei</a>
+                  </li>
+                
+              </ul>
+            </div>
+          
+
+          
+            
+          
+          
+
+        </div>
+      </div>
+
+      
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#背景"><span class="nav-number">1.</span> <span class="nav-text">背景</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#任务目标"><span class="nav-number">2.</span> <span class="nav-text">任务目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#实施过程"><span class="nav-number">3.</span> <span class="nav-text">实施过程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#引入maven插件findbugs-maven-plugin"><span class="nav-number">3.1.</span> <span class="nav-text">引入maven插件findbugs-maven-plugin</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#自定义bug检查类型-findbugs-include-xml"><span class="nav-number">3.2.</span> <span class="nav-text">自定义bug检查类型. findbugs-include.xml</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#jenkins-pipeline"><span class="nav-number">3.3.</span> <span class="nav-text">jenkins pipeline</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#成果展示"><span class="nav-number">3.4.</span> <span class="nav-text">成果展示</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+  
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2020</span>
+  <span class="with-love" id="animate">
+    <i class="fa fa-snowflake-o"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Jackie Chen</span>
+
+  
+
+  
+</div>
+
+
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+    
+
+    
+  </div>
+
+  
+
+<script>
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  <script src="/lib/jquery/index.js?v=3.4.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+
+  
+
+
+  <script src="/js/utils.js?v=7.1.2"></script>
+
+  <script src="/js/motion.js?v=7.1.2"></script>
+
+
+
+  
+  
+
+
+  <script src="/js/affix.js?v=7.1.2"></script>
+
+  <script src="/js/schemes/pisces.js?v=7.1.2"></script>
+
+
+
+
+  
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
+
+  
+
+
+  <script src="/js/next-boot.js?v=7.1.2"></script>
+
+
+  
+
+  
+
+  
+
+  
+
+
+  
+
+
+  
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
