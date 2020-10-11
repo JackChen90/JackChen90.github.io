@@ -94,14 +94,18 @@
 
 
 
-  <meta name="keywords" content="java,服务端,软件工程">
-<meta property="og:type" content="website">
-<meta property="og:title" content="抿茶言码">
-<meta property="og:url" content="http://yoursite.com/index.html">
+  <meta name="description" content="一、RPC服务端线程池的必要性出于性能考虑, RPC框架服务端是一定要设计线程池的. 否则, 来一个请求, 再去创建/启动线程, 就相当低效了. 二、线程池队列中有等待任务的影响我们的RPC框架中使用的是java线程池, 初始化时, 其核心线程数和最大线程数设置为相同, 都是取threadPoolsize的值.一旦同一时间的请求数高于设置的线程数(即threadPoolsize), 则请求会进等待">
+<meta name="keywords" content="RPC,线程池">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RPC线程池与CPU和内存的相互关系">
+<meta property="og:url" content="http://yoursite.com/2019/12/24/RPC线程池与CPU和内存的相互关系/index.html">
 <meta property="og:site_name" content="抿茶言码">
+<meta property="og:description" content="一、RPC服务端线程池的必要性出于性能考虑, RPC框架服务端是一定要设计线程池的. 否则, 来一个请求, 再去创建/启动线程, 就相当低效了. 二、线程池队列中有等待任务的影响我们的RPC框架中使用的是java线程池, 初始化时, 其核心线程数和最大线程数设置为相同, 都是取threadPoolsize的值.一旦同一时间的请求数高于设置的线程数(即threadPoolsize), 则请求会进等待">
 <meta property="og:locale" content="default">
+<meta property="og:updated_time" content="2020-10-11T17:15:09.627Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="抿茶言码">
+<meta name="twitter:title" content="RPC线程池与CPU和内存的相互关系">
+<meta name="twitter:description" content="一、RPC服务端线程池的必要性出于性能考虑, RPC框架服务端是一定要设计线程池的. 否则, 来一个请求, 再去创建/启动线程, 就相当低效了. 二、线程池队列中有等待任务的影响我们的RPC框架中使用的是java线程池, 初始化时, 其核心线程数和最大线程数设置为相同, 都是取threadPoolsize的值.一旦同一时间的请求数高于设置的线程数(即threadPoolsize), 则请求会进等待">
 
 
 
@@ -109,7 +113,7 @@
 
   
   
-  <link rel="canonical" href="http://yoursite.com/">
+  <link rel="canonical" href="http://yoursite.com/2019/12/24/RPC线程池与CPU和内存的相互关系/">
 
 
 
@@ -119,7 +123,7 @@
   };
 </script>
 
-  <title>抿茶言码</title>
+  <title>RPC线程池与CPU和内存的相互关系 | 抿茶言码</title>
   
 
 
@@ -167,8 +171,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -210,7 +213,7 @@
         
         
           
-          <li class="menu-item menu-item-home menu-item-active">
+          <li class="menu-item menu-item-home">
 
     
     
@@ -306,379 +309,9 @@
           
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/06/03/分布式id自增算法-雪花算法/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackie Chen">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="抿茶言码">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2020/06/03/分布式id自增算法-雪花算法/" class="post-title-link" itemprop="url">分布式id自增算法-雪花算法(snowflake)</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2020-06-03 00:27:08" itemprop="dateCreated datePublished" datetime="2020-06-03T00:27:08+08:00">2020-06-03</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2020-06-09 01:00:04" itemprop="dateModified" datetime="2020-06-09T01:00:04+08:00">2020-06-09</time>
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/算法/" itemprop="url" rel="index"><span itemprop="name">算法</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <h2 id="雪花算法"><a href="#雪花算法" class="headerlink" title="雪花算法"></a>雪花算法</h2><h3 id="1-介绍"><a href="#1-介绍" class="headerlink" title="1. 介绍"></a>1. 介绍</h3><p>snowflake算法, 最早是twitter内部使用的分布式环境下的唯一ID生成算法。在2014年开源。开源的版本由scala编写<br>附: <a href="https://github.com/twitter-archive/snowflake" target="_blank" rel="noopener">twitter源码github地址</a></p>
-<h3 id="2-原理"><a href="#2-原理" class="headerlink" title="2. 原理"></a>2. 原理</h3><p>雪花算法的原理非常简单. 取long类型的64位的bit, 然后分布如下:</p>
-<ol>
-<li><p>0位. 固定0, 正数标识</p>
-</li>
-<li><p>1-41位. 41位的毫秒时间差统计值. 这里的42存储的并不是时间戳. 实际上算法需要预制一个”初始时间戳”, 这个42位标识与初始时间戳的时间跨度. 可以算一把42位所能表述的时间跨度(以毫秒计).</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">2^41/(1000*60*60*24*365) = 69</span><br></pre></td></tr></table></figure>
-</li>
-<li><p>42-51位. 10位的机器标识位. 可以标识1024个机器节点</p>
-</li>
-<li><p>52-63位. 12位序列号位. 标识在单机器节点下, 同一毫秒时间能够产生的最大id个数为4096个</p>
-</li>
-</ol>
-<img src="/2020/06/03/分布式id自增算法-雪花算法/snowflake-64bit.jpg" title="snowflake-64bit">
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2020/06/03/分布式id自增算法-雪花算法/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2020/04/12/读后感-敏捷开发修炼之道/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackie Chen">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="抿茶言码">
-    </span>
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2020/04/12/读后感-敏捷开发修炼之道/" class="post-title-link" itemprop="url">敏捷开发修炼之道</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2020-04-12 16:27:08 / Modified: 17:11:55" itemprop="dateCreated datePublished" datetime="2020-04-12T16:27:08+08:00">2020-04-12</time>
-            
-
-            
-              
-
-              
-            
-          </span>
-
-          
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/读后感/" itemprop="url" rel="index"><span itemprop="name">读后感</span></a></span>
-
-                
-                
-              
-            </span>
-          
-
-          
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
-        </div>
-      </header>
-    
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          <blockquote>
-<p>敏捷开发就是在一个高度协作的环境中,不断地使用反馈进行自我调整和完善.</p>
-</blockquote>
-<h3 id="态度决定一切"><a href="#态度决定一切" class="headerlink" title="态度决定一切"></a>态度决定一切</h3><h4 id="做事-追求结果"><a href="#做事-追求结果" class="headerlink" title="做事, 追求结果:"></a>做事, 追求结果:</h4><ul>
-<li>以结果为导向, 一切的工作都围绕”把事情做成”. 有问题解决问题, 不允许相互指责, 批判错误而不批判人</li>
-<li>如果一个成员一再做伤害团队的事情, 无疑显示了他的不专业, 不专业的人无法帮助团队前进</li>
-<li>当团队中大部分都不专业, 并且没有工作目标, 及早离开</li>
-</ul>
-<h4 id="戒骄戒躁-步步为营"><a href="#戒骄戒躁-步步为营" class="headerlink" title="戒骄戒躁,步步为营"></a>戒骄戒躁,步步为营</h4><ul>
-<li>改代码之前, 要先理解代码. 同样, 要理解团队的开发方法和开发过程, 遵从统一的开发方式</li>
-<li>警惕”破窗效应”, 一次的妥协, 在不理解的基础上对代码进行类似+1-1的快速修复, 就一定会有下一次</li>
-<li>重视单元测试, 好的单元测试, 会是代码极佳的说明文档
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2020/04/12/读后感-敏捷开发修炼之道/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </li></ul></div>
-
-    
-
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
 
   
 
@@ -710,10 +343,8 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/12/24/RPC线程池与CPU和内存的相互关系/" class="post-title-link" itemprop="url">RPC线程池与CPU和内存的相互关系</a>
+          <h1 class="post-title" itemprop="name headline">RPC线程池与CPU和内存的相互关系
+
               
             
           </h1>
@@ -807,9 +438,7 @@
       
 
       
-        
-          
-            <h2 id="一、RPC服务端线程池的必要性"><a href="#一、RPC服务端线程池的必要性" class="headerlink" title="一、RPC服务端线程池的必要性"></a>一、RPC服务端线程池的必要性</h2><p>出于性能考虑, RPC框架服务端是一定要设计线程池的. 否则, 来一个请求, 再去创建/启动线程, 就相当低效了.</p>
+        <h2 id="一、RPC服务端线程池的必要性"><a href="#一、RPC服务端线程池的必要性" class="headerlink" title="一、RPC服务端线程池的必要性"></a>一、RPC服务端线程池的必要性</h2><p>出于性能考虑, RPC框架服务端是一定要设计线程池的. 否则, 来一个请求, 再去创建/启动线程, 就相当低效了.</p>
 <h2 id="二、线程池队列中有等待任务的影响"><a href="#二、线程池队列中有等待任务的影响" class="headerlink" title="二、线程池队列中有等待任务的影响"></a>二、线程池队列中有等待任务的影响</h2><p>我们的RPC框架中使用的是java线程池, 初始化时, 其核心线程数和最大线程数设置为<font color="OrangeRed">相同</font>, 都是取threadPoolsize的值.一旦同一时间的请求数高于设置的线程数(即threadPoolsize), 则请求会进等待队列. 此时服务端开始满负荷运行(线程池中所有线程均处理执行状态, 在执行完已有任务前, 不会再产生新的线程来执行请求).</p>
 <p>那线程池等待队列有任务对服务有什么影响呢?</p>
 <p>最直接的影响, 是导致<font color="OrangeRed">请求延迟</font>. 假设服务平均响应时间100ms, 服务线程池大小100. 假设当前并发为200, 则会有100个并发请求会进队列, 需要等待线程池中先处理完100个请求, 才能轮到队列中的请求执行. 此时响应时间直接变为200ms, <font color="OrangeRed">服务响应时间变长</font>.</p>
@@ -829,8 +458,6 @@
 </ul>
 <h4 id="情况4-出现服务端调用超时报错的情况"><a href="#情况4-出现服务端调用超时报错的情况" class="headerlink" title="情况4: 出现服务端调用超时报错的情况"></a>情况4: 出现服务端调用超时报错的情况</h4><p>这种情况下, 确认服务不是因为调用中间件超时报错(包括hbase/redis/mysql/其他服务), 直接扩容</p>
 
-          
-        
       
     </div>
 
@@ -851,194 +478,45 @@
 
     <footer class="post-footer">
       
-
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </div>
-  
-  
-  
-  </article>
-
-
-    
-      
-
-  
-
-  
-  
-  
-
-  
-
-  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-  
-  
-  
-  <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2019/06/24/https-原理浅析/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="name" content="Jackie Chen">
-      <meta itemprop="description" content>
-      <meta itemprop="image" content="/images/avatar.gif">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="抿茶言码">
-    </span>
-
-    
-      <header class="post-header">
-
         
+          
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                
-                <a href="/2019/06/24/https-原理浅析/" class="post-title-link" itemprop="url">https 原理浅析</a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-
-            
-            
-            
-
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-calendar-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">Posted on</span>
-              
-
-              
-                
-              
-
-              <time title="Created: 2019-06-24 00:27:08" itemprop="dateCreated datePublished" datetime="2019-06-24T00:27:08+08:00">2019-06-24</time>
-            
-
-            
-              
-
-              
-                
-                <span class="post-meta-divider">|</span>
-                
-
-                <span class="post-meta-item-icon">
-                  <i class="fa fa-calendar-check-o"></i>
-                </span>
-                
-                  <span class="post-meta-item-text">Edited on</span>
-                
-                <time title="Modified: 2020-04-12 17:05:21" itemprop="dateModified" datetime="2020-04-12T17:05:21+08:00">2020-04-12</time>
-              
-            
-          </span>
-
+        <div class="post-tags">
           
-            <span class="post-category">
-            
-              <span class="post-meta-divider">|</span>
-            
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              
-                <span class="post-meta-item-text">In</span>
-              
-              
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing"><a href="/categories/网络协议/" itemprop="url" rel="index"><span itemprop="name">网络协议</span></a></span>
-
-                
-                
-              
-            </span>
+            <a href="/tags/RPC/" rel="tag"># RPC</a>
           
-
+            <a href="/tags/线程池/" rel="tag"># 线程池</a>
           
-            
-            
-          
-
-          
-          
-
-          
-
-          
-
-          
-
         </div>
-      </header>
-    
+      
 
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
+      
       
       
 
       
-        
-          <h1 id="Https原理浅析"><a href="#Https原理浅析" class="headerlink" title="Https原理浅析"></a>Https原理浅析</h1><p>使用RSA算法的SSL握手图如下：</p>
-<img src="/2019/06/24/https-原理浅析/shixu.png" title="shixu">
-          <!--noindex-->
-          
-            <div class="post-button text-center">
-              <a class="btn" href="/2019/06/24/https-原理浅析/#more" rel="contents">
-                Read more &raquo;
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2019/06/24/https-原理浅析/" rel="next" title="https 原理浅析">
+                <i class="fa fa-chevron-left"></i> https 原理浅析
               </a>
-            </div>
-          
-          <!--/noindex-->
-        
-      
-    </div>
+            
+          </div>
 
-    
+          <span class="post-nav-divider"></span>
 
-    
-    
-    
-
-    
-
-    
-      
-    
-    
-
-    
-
-    <footer class="post-footer">
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2020/04/12/读后感-敏捷开发修炼之道/" rel="prev" title="敏捷开发修炼之道">
+                敏捷开发修炼之道 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
       
 
       
-
-      
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -1048,14 +526,15 @@
   </article>
 
 
-    
-  </section>
-
-  
+  </div>
 
 
           </div>
           
+
+  
+
+
 
         </div>
         
@@ -1075,8 +554,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            Table of Contents
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            Overview
+          </li>
+        </ul>
+      
 
-      <div class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <div class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -1227,6 +715,23 @@
       </div>
 
       
+      <!--noindex-->
+        <div class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+            
+            
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#一、RPC服务端线程池的必要性"><span class="nav-number">1.</span> <span class="nav-text">一、RPC服务端线程池的必要性</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#二、线程池队列中有等待任务的影响"><span class="nav-number">2.</span> <span class="nav-text">二、线程池队列中有等待任务的影响</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#三、线程池大小设置对CPU-内存的影响"><span class="nav-number">3.</span> <span class="nav-text">三、线程池大小设置对CPU/内存的影响</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#四、我们服务的特点"><span class="nav-number">4.</span> <span class="nav-text">四、我们服务的特点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#五、具体的调整操作"><span class="nav-number">5.</span> <span class="nav-text">五、具体的调整操作</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#情况1-服务内存使用率较低但线程池队列经常有任务"><span class="nav-number">5.0.1.</span> <span class="nav-text">情况1: 服务内存使用率较低但线程池队列经常有任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#情况2-服务内存使用率较低且线程池队列没有任务"><span class="nav-number">5.0.2.</span> <span class="nav-text">情况2: 服务内存使用率较低且线程池队列没有任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#情况3-服务内存使用率较高且线程池队列经常有任务"><span class="nav-number">5.0.3.</span> <span class="nav-text">情况3: 服务内存使用率较高且线程池队列经常有任务</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#情况4-出现服务端调用超时报错的情况"><span class="nav-number">5.0.4.</span> <span class="nav-text">情况4: 出现服务端调用超时报错的情况</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </div>
+      <!--/noindex-->
+      
 
       
 
@@ -1351,6 +856,10 @@
 
 
   
+  <script src="/js/scrollspy.js?v=7.1.2"></script>
+<script src="/js/post-details.js?v=7.1.2"></script>
+
+
 
   
 
@@ -1366,6 +875,8 @@
 
   
 
+
+  
 
 
   
