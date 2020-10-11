@@ -102,7 +102,7 @@
 <meta property="og:site_name" content="抿茶言码">
 <meta property="og:description" content="一、RPC服务端线程池的必要性出于性能考虑, RPC框架服务端是一定要设计线程池的. 否则, 来一个请求, 再去创建/启动线程, 就相当低效了. 二、线程池队列中有等待任务的影响我们的RPC框架中使用的是java线程池, 初始化时, 其核心线程数和最大线程数设置为相同, 都是取threadPoolsize的值.一旦同一时间的请求数高于设置的线程数(即threadPoolsize), 则请求会进等待">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2020-10-11T17:15:09.627Z">
+<meta property="og:updated_time" content="2020-10-11T17:18:21.018Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="RPC线程池与CPU和内存的相互关系">
 <meta name="twitter:description" content="一、RPC服务端线程池的必要性出于性能考虑, RPC框架服务端是一定要设计线程池的. 否则, 来一个请求, 再去创建/启动线程, 就相当低效了. 二、线程池队列中有等待任务的影响我们的RPC框架中使用的是java线程池, 初始化时, 其核心线程数和最大线程数设置为相同, 都是取threadPoolsize的值.一旦同一时间的请求数高于设置的线程数(即threadPoolsize), 则请求会进等待">
@@ -386,7 +386,7 @@
                 
                   <span class="post-meta-item-text">Edited on</span>
                 
-                <time title="Modified: 2020-10-12 01:15:09" itemprop="dateModified" datetime="2020-10-12T01:15:09+08:00">2020-10-12</time>
+                <time title="Modified: 2020-10-12 01:18:21" itemprop="dateModified" datetime="2020-10-12T01:18:21+08:00">2020-10-12</time>
               
             
           </span>
@@ -442,6 +442,8 @@
 <h2 id="二、线程池队列中有等待任务的影响"><a href="#二、线程池队列中有等待任务的影响" class="headerlink" title="二、线程池队列中有等待任务的影响"></a>二、线程池队列中有等待任务的影响</h2><p>我们的RPC框架中使用的是java线程池, 初始化时, 其核心线程数和最大线程数设置为<font color="OrangeRed">相同</font>, 都是取threadPoolsize的值.一旦同一时间的请求数高于设置的线程数(即threadPoolsize), 则请求会进等待队列. 此时服务端开始满负荷运行(线程池中所有线程均处理执行状态, 在执行完已有任务前, 不会再产生新的线程来执行请求).</p>
 <p>那线程池等待队列有任务对服务有什么影响呢?</p>
 <p>最直接的影响, 是导致<font color="OrangeRed">请求延迟</font>. 假设服务平均响应时间100ms, 服务线程池大小100. 假设当前并发为200, 则会有100个并发请求会进队列, 需要等待线程池中先处理完100个请求, 才能轮到队列中的请求执行. 此时响应时间直接变为200ms, <font color="OrangeRed">服务响应时间变长</font>.</p>
+<a id="more"></a>
+
 <h2 id="三、线程池大小设置对CPU-内存的影响"><a href="#三、线程池大小设置对CPU-内存的影响" class="headerlink" title="三、线程池大小设置对CPU/内存的影响"></a>三、线程池大小设置对CPU/内存的影响</h2><p>既然线程池队列有任务, 会导致服务响应时间变长, 那是否可以把线程池大小设置的足够大, 保证请求不会进等待队列, 进而产生延时?</p>
 <p>答案是: <font color="OrangeRed">不可以</font>.</p>
 <p>jvm在创建线程时,要为线程分配栈内存, 当前默认是1024KB(64位linux机器, 且不设置-Xss), 也就是说在服务端满负荷运行的情况下, 服务端threadPoolsize从100提升到500, 将增加400MB内存的消耗. 一旦我们的代码执行过程中还涉及到新建线程, 那内存的消耗将进一步增加. 此外, 我们的服务还涉及到运算, 也要消耗CPU资源. 更不必说超过CPU核数的并发, 只是CPU分配时间片实现的并发, 本质上已经不是并发了. 由此可知: 线程池大小的调整, 要综合考虑机器实例的负载. <font color="OrangeRed">需要在线程池大小与内存/CPU之间寻找相对平衡的点, 实现在充分保证服务质量的情况下, 最大限度利用好资源</font>.</p>
